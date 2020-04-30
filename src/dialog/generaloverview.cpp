@@ -40,6 +40,8 @@
 #include <QClipboard>
 #include <QMessageBox>
 #include <QScrollBar>
+#include <QButtonGroup>
+#include <QActionGroup>
 
 struct SearchDetails
 {
