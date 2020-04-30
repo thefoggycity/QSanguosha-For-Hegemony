@@ -22,10 +22,12 @@
 #define _SETTINGS_H
 
 #include <QSettings>
+//#ifndef SRV_ONLY
 #include <QFont>
 #include <QRectF>
 #include <QPixmap>
 #include <QBrush>
+//#endif
 
 class Settings : public QSettings
 {
@@ -49,6 +51,7 @@ public:
     //************************************
     void init();
 
+//#ifndef SRV_ONLY
     const QRectF Rect;
     QFont BigFont;
     QFont SmallFont;
@@ -61,6 +64,7 @@ public:
     QColor SkillDescriptionInToolTipColor;
     QColor SkillDescriptionInOverviewColor;
     QColor ToolTipBackgroundColor;
+//#endif
 
     // server side
     QString ServerName;

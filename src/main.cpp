@@ -24,18 +24,22 @@
 
 #include <QFile>
 #include <QCoreApplication>
-#include <QApplication>
 #include <QTranslator>
 #include <QDateTime>
-#include <QSplashScreen>
-#include <QMessageBox>
 
 #include "server.h"
 #include "settings.h"
 #include "engine.h"
+
+#ifndef SRV_ONLY
+#include <QApplication>
+#include <QSplashScreen>
+#include <QMessageBox>
+
 #include "mainwindow.h"
 #include "audio.h"
 #include "stylehelper.h"
+#endif
 
 #ifndef WINDOWS
 #include <QDir>
@@ -71,6 +75,15 @@ static bool callback(const wchar_t *, const wchar_t *id, void *, EXCEPTION_POINT
 
 int main(int argc, char *argv[])
 {
+#ifdef SRV_ONLY
+#ifndef Q_OS_UNIX
+#warning "Server-only mode is tested for Unix platform only."
+#endif  // Q_OS_UNIX
+#define showSplashMessage(message) do{} while (false)
+#define showSplashOrLog(str) puts(str)
+    new QCoreApplication(argc, argv);
+#else
+#define showSplashOrLog(str) showSplashMessage(QSplashScreen::tr(str))
     bool noGui = argc > 1 && strcmp(argv[1], "-server") == 0;
 
     if (noGui)
@@ -102,7 +115,8 @@ int main(int argc, char *argv[])
         splash->showMessage(message, Qt::AlignBottom | Qt::AlignHCenter, Qt::cyan);\
         qApp->processEvents();\
         }
-#endif
+#endif  // Q_OS_MAC || Q_OS_ANDROID
+#endif  // SRV_ONLY
 
 #ifdef USE_BREAKPAD
     showSplashMessage(QSplashScreen::tr("Loading BreakPad..."));
@@ -115,12 +129,12 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef Q_OS_LINUX
-    showSplashMessage(QSplashScreen::tr("Checking game path..."));
+    showSplashOrLog("Checking game path...");
     QDir dir(QString("lua"));
     if (dir.exists() && (dir.exists(QString("config.lua")))) {
         // things look good and use current dir
     } else {
-        showSplashMessage(QSplashScreen::tr("Setting game path..."));
+        showSplashOrLog("Setting game path...");
 #ifndef Q_OS_ANDROID
         QDir::setCurrent(qApp->applicationFilePath().replace("games", "share"));
 #else
@@ -158,24 +172,25 @@ int main(int argc, char *argv[])
 #endif
 
     // initialize random seed for later use
-    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+    qsrand((unsigned int)QTime(0, 0, 0).secsTo(QTime::currentTime()));
 
     // load the main translation file first for we need to translate messages of splash.
     QTranslator translator;
     translator.load("sanguosha.qm");
     qApp->installTranslator(&translator);
 
-    showSplashMessage(QSplashScreen::tr("Loading translation..."));
+    showSplashOrLog("Loading translation...");
     QTranslator qt_translator;
     qt_translator.load("qt_zh_CN.qm");
     qApp->installTranslator(&qt_translator);
 
-    showSplashMessage(QSplashScreen::tr("Initializing game engine..."));
+    showSplashOrLog("Initializing game engine...");
     new Settings;
     Sanguosha = new Engine;
 
-    showSplashMessage(QSplashScreen::tr("Loading user's configurations..."));
+    showSplashOrLog("Loading user's configurations...");
     Config.init();
+#ifndef SRV_ONLY
     if (!noGui) {
         QFont f = Config.AppFont;
 #ifdef Q_OS_ANDROID
@@ -185,6 +200,7 @@ int main(int argc, char *argv[])
     }
 
     if (qApp->arguments().contains("-server")) {
+#endif  // SRV_ONLY
         Server *server = new Server(qApp);
         printf("Server is starting on port %u\n", Config.ServerPort);
 
@@ -194,6 +210,7 @@ int main(int argc, char *argv[])
             printf("Starting failed!\n");
 
         return qApp->exec();
+#ifndef SRV_ONLY
     }
 
     showSplashMessage(QSplashScreen::tr("Loading style sheet..."));
@@ -247,4 +264,5 @@ int main(int argc, char *argv[])
     }
 
     return qApp->exec();
+#endif // SRV_ONLY
 }

@@ -326,10 +326,14 @@ QList<const Package *> Engine::getPackages() const
 
 QStringList Engine::getBanPackages() const
 {
+#ifdef SRV_ONLY
+    return Config.BanPackages;
+#else
     if (qApp->arguments().contains("-server"))
         return Config.BanPackages;
     else
         return ban_package.toList();
+#endif
 }
 
 QStringList Engine::getConvertGenerals(const QString &name) const

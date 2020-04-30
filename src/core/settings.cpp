@@ -19,22 +19,29 @@
     *********************************************************************/
 
 #include "settings.h"
-#include "photo.h"
-#include "card.h"
 #include "engine.h"
 
-#include <QFontDatabase>
 #include <QStringList>
 #include <QFile>
-#include <QMessageBox>
-#include <QApplication>
 #include <QNetworkInterface>
 #include <QDateTime>
 
+#ifndef SRV_ONLY
+#include "photo.h"
+#include "card.h"
+#include <QApplication>
+#include <QFontDatabase>
+#include <QMessageBox>
+#else
+#include <QCoreApplication>
+#endif
+
 Settings *SettingsInstance = NULL;
 
+#ifndef SRV_ONLY
 static const qreal ViewWidth = 1280 * 0.8;
 static const qreal ViewHeight = 800 * 0.8;
+#endif
 
 //consts
 const int Settings::S_SURRENDER_REQUEST_MIN_INTERVAL = 5000;
@@ -46,19 +53,26 @@ const int Settings::S_JUDGE_LONG_DELAY = 800;
 
 Settings::Settings()
 #ifdef Q_OS_WIN32
-    : QSettings("config.ini", QSettings::IniFormat),
+    : QSettings("config.ini", QSettings::IniFormat)
 #else
-    : QSettings("QSanguosha.org", "QSanguosha"),
+    : QSettings("QSanguosha.org", "QSanguosha")
 #endif
-    Rect(-ViewWidth / 2, -ViewHeight / 2, ViewWidth, ViewHeight)
+#ifndef SRV_ONLY
+    , Rect(-ViewWidth / 2, -ViewHeight / 2, ViewWidth, ViewHeight)
+#endif
 {
     Q_ASSERT(SettingsInstance == NULL);
     SettingsInstance = this;
+#ifdef SRV_ONLY
+    connect(qApp, &QCoreApplication::aboutToQuit, this, &Settings::deleteLater);
+#else
     connect(qApp, &QApplication::aboutToQuit, this, &Settings::deleteLater);
+#endif
 }
 
 void Settings::init()
 {
+#ifndef SRV_ONLY
     if (!qApp->arguments().contains("-server")) {
         QString font_path = value("DefaultFontPath", "font/simli.ttf").toString();
         int font_id = QFontDatabase::addApplicationFont(font_path);
@@ -88,6 +102,7 @@ void Settings::init()
         SkillDescriptionInOverviewColor = value("SkillDescriptionInOverviewColor", "#FF0080").toString();
         ToolTipBackgroundColor = value("ToolTipBackgroundColor", "#000000").toString();
     }
+#endif  // SRV_ONLY
 
     CountDownSeconds = value("CountDownSeconds", 3).toInt();
     GameMode = value("GameMode", "08p").toString();
@@ -123,7 +138,7 @@ void Settings::init()
     //Set Cao Cao as default avatar to pay tribute to Moligaloo, the founder of QSanguosha.
     UserAvatar = value("UserAvatar", "caocao").toString();
     HistoryIPs = value("HistoryIPs").toStringList();
-    DetectorPort = value("DetectorPort", 9526u).toUInt();
+    DetectorPort = (unsigned short)value("DetectorPort", 9526u).toUInt();
     MaxCards = value("MaxCards", 15).toInt();
 
     EnableHotKey = value("EnableHotKey", true).toBool();

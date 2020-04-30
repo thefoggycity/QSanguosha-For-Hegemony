@@ -5,12 +5,16 @@ TARGET = QSanguosha
 QT += network widgets
 #!winrt:QT += declarative
 TEMPLATE = app
-CONFIG += audio
 
 CONFIG += c++11
 
 CONFIG += lua
 #CONFIG += lua53
+
+DEFINES += SRV_ONLY
+!defined(SRV_ONLY){
+    CONFIG += audio
+}
 
 SOURCES += \
     src/main.cpp \
@@ -120,7 +124,7 @@ SOURCES += \
     src/util/recorder.cpp \
     swig/sanguosha_wrap.cxx \
     src/ui/guhuobox.cpp \
-	src/ui/cardchoosebox.cpp \   
+    src/ui/cardchoosebox.cpp \
     src/package/transformation.cpp \
     src/ui/lightboxanimation.cpp \
     src/ui/pindianbox.cpp
@@ -534,7 +538,7 @@ TRANSLATIONS += builds/sanguosha.ts
     SWIG_bin = "swig"
     contains(QMAKE_HOST.os, "Windows"): SWIG_bin = "$$_PRO_FILE_PWD_/tools/swig/swig.exe"
 
-    system("$$SWIG_bin -c++ -lua $$_PRO_FILE_PWD_/swig/sanguosha.i")
+#    system("$$SWIG_bin -c++ -lua $$_PRO_FILE_PWD_/swig/sanguosha.i")
 }
 
 OTHER_FILES += \
