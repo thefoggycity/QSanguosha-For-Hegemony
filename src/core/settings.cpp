@@ -54,6 +54,8 @@ const int Settings::S_JUDGE_LONG_DELAY = 800;
 Settings::Settings()
 #ifdef Q_OS_WIN32
     : QSettings("config.ini", QSettings::IniFormat)
+#elif defined(SRV_ONLY)
+    : QSettings("default_config.ini", QSettings::IniFormat)
 #else
     : QSettings("QSanguosha.org", "QSanguosha")
 #endif

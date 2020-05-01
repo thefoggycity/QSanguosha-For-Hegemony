@@ -13,7 +13,7 @@ CONFIG += lua
 
 DEFINES += SRV_ONLY
 !defined(SRV_ONLY){
-    CONFIG += audio
+#    CONFIG += audio
 }
 
 SOURCES += \
