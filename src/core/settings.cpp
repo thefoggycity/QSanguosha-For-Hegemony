@@ -55,7 +55,7 @@ Settings::Settings()
 #ifdef Q_OS_WIN32
     : QSettings("config.ini", QSettings::IniFormat)
 #elif defined(SRV_ONLY)
-    : QSettings("default_config.ini", QSettings::IniFormat)
+    : QSettings("default.conf", QSettings::NativeFormat)
 #else
     : QSettings("QSanguosha.org", "QSanguosha")
 #endif

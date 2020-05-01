@@ -5,15 +5,18 @@ TARGET = QSanguosha
 QT += network widgets
 #!winrt:QT += declarative
 TEMPLATE = app
+#CONFIG += audio
+CONFIG += serveronly    # server does not need audio
 
 CONFIG += c++11
 
 CONFIG += lua
 #CONFIG += lua53
 
-DEFINES += SRV_ONLY
-!defined(SRV_ONLY){
-#    CONFIG += audio
+CONFIG(serveronly){
+    DEFINES += SRV_ONLY
+    SOURCES += src/server/cliparser.cpp
+    HEADERS += src/server/cliparser.h
 }
 
 SOURCES += \

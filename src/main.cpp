@@ -40,8 +40,7 @@
 #include "audio.h"
 #include "stylehelper.h"
 #else
-#include <QCommandLineParser>
-#include <QCommandLineOption>
+#include "cliparser.h"
 #endif
 
 #ifndef WINDOWS
@@ -87,44 +86,7 @@ int main(int argc, char *argv[])
     new QCoreApplication(argc, argv);
     QCoreApplication::setApplicationName("QSanguosha for Hegemony Server");
     QCoreApplication::setApplicationVersion(QString("2.0 Qt ").append(QT_VERSION_STR));
-    QCommandLineParser cmdParser;
-    cmdParser.setApplicationDescription("QSanguosha for Hegemony game server.");
-    cmdParser.addVersionOption();
-    cmdParser.addHelpOption();
-    QCommandLineOption serverName({"s", "server-name"},
-                                  "Server name shown to the players.",
-                                  "ServerName");
-    QCommandLineOption serverAddr({"a", "address"},
-                                  "Server IP or domain address for connections.",
-                                  "Address");
-    QCommandLineOption serverPort({"p", "port"},
-                                  "Server port for connection listening.",
-                                  "ServerPort");
-    QCommandLineOption playerTimeout({"t", "timeout"},
-                                     "Time limit for players' operation, in seconds.",
-                                     "OperationTimeout");
-    QCommandLineOption numPlayers({"n", "players"},
-                                  "Number of players in the game, between 2 to 10.",
-                                  "NumPlayers");
-    QCommandLineOption banPackages({"b", "ban-packages"},
-                                   "Card packages not to be used in the game. Use multiple times for more packages.",
-                                   "BanPackages");
-    QCommandLineOption isFixSeat({"f", "fixed-seat"},
-                                  "Fix players seat position, otherwise randomized.");
-    QCommandLineOption numLuckCards({"l", "luck-cards"},
-                                    "Number of luck card a player is allowed to use.",
-                                    "LuckCards");
-    QCommandLineOption numMaxCards({"c", "max-cards"},
-                                   "Maximum number of cards that a player may hold.",
-                                   "MaxCards");
-    QCommandLineOption isRewardFirstShow({"r", "reward-first-show"},
-                                         "Reward 2 cards to the player that reveals the character first.");
-    QList<QCommandLineOption> cmdParserOpts = {
-        serverName, serverAddr, serverPort, playerTimeout, numPlayers, banPackages,
-        isFixSeat, numLuckCards, numMaxCards, isRewardFirstShow
-    };
-    cmdParser.addOptions(cmdParserOpts);
-    cmdParser.process(*qApp);
+    CLIParser cliParser(qApp);
 #else
 #define showSplashOrLog(str) showSplashMessage(QSplashScreen::tr(str))
     bool noGui = argc > 1 && strcmp(argv[1], "-server") == 0;
@@ -244,49 +206,7 @@ int main(int argc, char *argv[])
 
     if (qApp->arguments().contains("-server")) {
 #else
-    if (cmdParser.isSet(serverName))
-        Config.ServerName = cmdParser.value(serverName);
-    if (cmdParser.isSet(serverAddr))
-        Config.Address = cmdParser.value(serverAddr);
-    if (cmdParser.isSet(serverPort))
-        Config.ServerPort = cmdParser.value(serverPort).toUInt();
-    if (cmdParser.isSet(playerTimeout)) {
-        int val = cmdParser.value(playerTimeout).toInt();
-        if (val <= 0) {
-            puts("Error: Timeout must be at least 1 second.");
-            cmdParser.showHelp(1);
-        } else
-            Config.OperationTimeout = val;
-    }
-    if (cmdParser.isSet(numPlayers)) {
-        int val = cmdParser.value(numPlayers).toInt();
-        if (val > 10 || val < 2) {
-            puts("Error: player must be at least 2 but no more than 10.");
-            cmdParser.showHelp(1);
-        } else {
-            QString mode = QString::number(val);
-            if (val < 10)
-                mode.prepend('0');
-            mode.append('p');
-            Config.GameMode = mode;
-        }
-    }
-    printf("Game mode is %s, timeout %d seconds.\n",
-           Config.GameMode.toStdString().c_str(), Config.OperationTimeout);
-    if (cmdParser.isSet(banPackages))
-        Config.BanPackages = cmdParser.values(banPackages);
-    printf("Banned packages are:");
-    for (auto bp : Config.BanPackages)
-        printf(" %s", bp.toStdString().c_str());
-    puts("");
-    if (cmdParser.isSet(isFixSeat))
-        Config.RandomSeat = false;
-    if (cmdParser.isSet(numLuckCards))
-        Config.LuckCardLimitation = cmdParser.value(numLuckCards).toInt();
-    if (cmdParser.isSet(numMaxCards))
-        Config.MaxCards = cmdParser.value(numMaxCards).toInt();
-    if (cmdParser.isSet(isRewardFirstShow))
-        Config.RewardTheFirstShowingPlayer = true;
+    cliParser.UpdateSettings(Config);
 #endif  // SRV_ONLY
         Server *server = new Server(qApp);
         printf("Server is starting on port %u...\n", Config.ServerPort);
