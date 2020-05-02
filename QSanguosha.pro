@@ -5,8 +5,8 @@ TARGET = QSanguosha
 QT += network widgets
 #!winrt:QT += declarative
 TEMPLATE = app
-#CONFIG += audio
-CONFIG += serveronly    # server does not need audio
+CONFIG += audio
+#CONFIG += serveronly    # server does not need audio
 
 CONFIG += c++11
 
