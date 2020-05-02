@@ -43,6 +43,8 @@
 #include "cliparser.h"
 #endif
 
+#define APP_QT_PLUGIN_PATH  "qt-plugins"
+
 #ifndef WINDOWS
 #include <QDir>
 #endif
@@ -83,6 +85,7 @@ int main(int argc, char *argv[])
 #endif  // Q_OS_UNIX
 #define showSplashMessage(message) do{} while (false)
 #define showSplashOrLog(str) puts(str)
+    QCoreApplication::addLibraryPath(APP_QT_PLUGIN_PATH);
     new QCoreApplication(argc, argv);
     QCoreApplication::setApplicationName("QSanguosha for Hegemony Server");
     QCoreApplication::setApplicationVersion(QString("2.0 Qt ").append(QT_VERSION_STR));
@@ -91,10 +94,13 @@ int main(int argc, char *argv[])
 #define showSplashOrLog(str) showSplashMessage(QSplashScreen::tr(str))
     bool noGui = argc > 1 && strcmp(argv[1], "-server") == 0;
 
-    if (noGui)
+    if (noGui) {
+        QCoreApplication::addLibraryPath(APP_QT_PLUGIN_PATH);
         new QCoreApplication(argc, argv);
-    else
+    } else {
+        QApplication::addLibraryPath(APP_QT_PLUGIN_PATH);
         new QApplication(argc, argv);
+    }
 
 #if defined(Q_OS_MAC) || defined(Q_OS_ANDROID)
 #define showSplashMessage(message)
