@@ -28,11 +28,24 @@ Build Instructions
 
 ### Environment Prerequisites
 
-- C++ compiler (e.g. `build-esential` package in apt)
-- Qt 5 development tools (e.g. `qt5-default` and `qttools5-dev-tools` package in apt)
-- SWIG code generator (e.t. `swig` package in apt)
+- C++ compiler and GNU Make
+- Qt 5 development tools
+- SWIG code generator
 
-### Build Process (Ubuntu)
+Using apt (Debian-based, e.g. Ubuntu):
+```
+sudo apt install build-esential qt5-default qttools5-dev-tools swig
+```
+
+Using dnf (RHEL/CentOS/Fedora):
+```
+sudo dnf install qt5-qtbase-devel qt5-qttools-devel make swig
+cd /usr/bin/    # Run "which qmake-qt5" to confirm the directory
+sudo ln -s lrelease-qt5 lrelease
+sudo ln -s qmake-qt5 qmake
+```
+
+### Build Process (Linux)
 
 1. Clone the repository, path referred as `$REPO`.
 2. Decide your build target by editing `$REPO/QSanguosha.pro`. 
@@ -50,13 +63,14 @@ Build Instructions
 8. Copy the built binary `QSanguosha` to `$REPO`.
 9. Now the application can be run from there.
 
-### Other Platforms
+### Windows and MacOS
 
 Refer to the [original README](./README_Mogara.md).
 
 License
 ------------
-###Code
+
+### Code
 This game is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 3.0
@@ -69,7 +83,7 @@ General Public License for more details.
 
 See the LICENSE file for more details.
 
-###Material
+### Material
 Our Materials are under the terms of the Creative Commons
 Attribution-NonCommercial-NoDerivatives 4.0 International (CC
 BY-NC-ND 4.0)
