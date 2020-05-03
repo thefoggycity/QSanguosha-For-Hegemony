@@ -34,7 +34,7 @@ Build Instructions
 
 Using apt (Debian-based, e.g. Ubuntu):
 ```
-sudo apt install build-esential qt5-default qttools5-dev-tools swig
+sudo apt install build-essential qt5-default qttools5-dev-tools swig
 ```
 
 Using dnf (RHEL/CentOS/Fedora):
