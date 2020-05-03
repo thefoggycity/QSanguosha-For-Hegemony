@@ -67,8 +67,76 @@ sudo ln -s qmake-qt5 qmake
 
 Refer to the [original README](./README_Mogara.md).
 
+Deployment
+----------
+
+### Linux
+
+1. Copy or create the following files and folders in the deployment folder, called `$APP`.
+  - `QSanguosha` is the executable just built.
+  - `lib/` and `qt-plugins` are empty directories need to be created.
+  - (Optional) `LICENSES/` contains the four license text files in the repository.
+  - Other resources files can be directly copied from the repository.
+```
+ai-selector/    font/       LICENSES/    rule/
+audio/          hero-skin/  lua/         sanguosha.qm
+diy/            image/      QSanguosha   skins/
+extension-doc/  lang/       qt-plugins/  style-sheet/
+extensions/     lib/        qt_zh_CN.qm  ui-script/
+```
+
+2. Copy the following items from system library path (`/lib/x86_64-linux-gnu/` for example) to `$APP/lib/`
+```
+libdouble-conversion.so.3  libQt5Core.so.5     libQt5Svg.so.5
+libfmodexL.so              libQt5DBus.so.5     libQt5Widgets.so.5
+libfmodex.so               libQt5Gui.so.5      libQt5XcbQpa.so.5
+libpcre2-16.so.0           libQt5Network.so.5
+```
+The required shared libraries depend on build. Hence, these files should be retrieved from the development machine. Please consider using `ldd <executable>` and `lsof -p <process_id>` (at runtime) to check the required libraries. The Python script [ldd_copy](./ldd_copy.py) uses `ldd` to gather shared libraries, but please be aware that many of them comes with virtually all linux releases.
+
+3. Copy the following folders from system Qt 5 library path (`/lib/x86_64-linux-gnu/qt5/plugins/` for example) to `$APP/qt-plugins/`.
+```
+bearer/        platforminputcontexts/  platformthemes/
+imageformats/  platforms/              xcbglintegrations/
+```
+
+4. Create a starter script `start.sh` in `$APP` for application start-up. The script should add `./lib` to `LD_LIBRARY_PATH`. An example will be
+```
+#!/bin/sh
+env LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib ./QSanguosha
+```
+If your screen is Hi-DPI (e.g. 2K and above) where the application appears small, use
+```
+env LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./lib QT_AUTO_SCREEN_SCALE_FACTOR=1 ./QSanguosha
+```
+
+5. (Optional) Create a desktop file as application launcher with icon.
+
+### Windows
+
+1. Follow the 1st step for deployment in Linux (executable is `QSanguosha.exe`). In addition, copy `fmodex64.dll` and `fmodexL64.dll` as well.
+
+2. Copy the following items from system Qt library path (`C:\Qt\[version]\bin\` for example) to `$APP`.
+```
+Qt5Core.dll  Qt5Gui.dll  Qt5Network.dll  Qt5Qml.dll  Qt5Quick.dll  Qt5Widgets.dll
+```
+
+3. Find `msvcr120.dll` and `msvcp120.dll`, copy them to `$APP`.
+
+4. Copy the following items from system Qt plugin path (`C:\Qt\[version]\plugins\` for example) to `$APP\qt-plugins`.
+```
+bearer\qgenericbearer.dll  platforms\qwindows.dll  styles\qwindowsvistastyle.dll
+imageformats\[qgif, qicns, qico, qjepg, qtga, qtiff, qwbmp, qwebp].dll
+```
+
+5. (Optional) On Hi-DPI display, create a launch script `QSanguosha_hidpi.bat` in `$APP`
+```
+set QT_AUTO_SCREEN_SCALE_FACTOR=1
+.\QSanguosha.exe -platform windows:dpiawareness=0
+```
+
 License
-------------
+----------
 
 ### Code
 This game is free software; you can redistribute it and/or
